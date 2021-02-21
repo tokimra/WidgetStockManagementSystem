@@ -1,0 +1,16 @@
+# CSC 339-02 Spring 2021
+# Program 1
+# Name: Thomas Truong
+import csv
+inventory = {}
+def load_stock(filename):
+    # Reads filename and adds contents to inventory
+    with open (filename, newline = '') as csvfile:
+
+        orderNum = {}
+        orderreader = csv.DictReader(csvfile)
+        for row in orderreader:
+            orderNum = {row['item']:row['qty']}
+            inventory.update(orderNum)
+        print(inventory)
+        
