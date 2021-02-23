@@ -6,10 +6,11 @@ import os
 inventory = {}
 pull = {}
 csvCounter = 1
+binCounter = 1
 
 def load_stock(filename):
     # Reads filename and adds contents to inventory
-    binCounter = 1
+    global binCounter
     with open (filename, newline = '') as csvfile:
         orderReader = csv.DictReader(csvfile)
         for row in orderReader:
