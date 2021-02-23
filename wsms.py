@@ -7,11 +7,11 @@ pull = {}
 
 def load_stock(filename):
     # Reads filename and adds contents to inventory
-    binCounter = 0
-    bin = {binCounter:None}
+    binCounter = 1
     with open (filename, newline = '') as csvfile:
         orderReader = csv.DictReader(csvfile)
         for row in orderReader:
+            bin = {binCounter:None}
             inventory.update(bin)
             inventory[binCounter] = {row['item']:row['qty']}
             binCounter += 1
@@ -21,32 +21,30 @@ def check_stock(item):
     # Returns the in stock quantity of an item
     for key in inventory:
         if item in inventory[key]:
-            print("Currently ", item, " has ", inventory[x][item])
+            print("Currently ", item, " has ", inventory[key][item])
 
 def add_stock(item,qty):
     # Increments the stock of the item by qty
-    if item in inventory:
-        temp = int(qty)
-        newQty = int(inventory [item])
-        newQty += temp
-        inventory [item] = str(newQty)
-        print(item, " now has ", inventory[item])
-    else:
-        print("Invalid item number!")
+    for key in inventory:
+        if item in inventory[key]:
+            temp = int(qty)
+            newQty = int(inventory [key][item])
+            newQty += temp
+            inventory [key][item] = str(newQty)
+            print(item, " now has ", inventory[key][item])
 
 def remove_stock(item,qty):
     # Decrements the stock of the item by qty
-    if item in inventory:
-        temp = int(qty)
-        newQty = int(inventory [item])
-        if temp <= newQty:
-            newQty -= temp
-            inventory [item] = str(newQty)
-            print(item, " now has ", inventory[item])
-        else:
-            print("Cannot remove more than what is in the inventory!")
-    else:
-        print("Invalid item number!")
+    for key in inventory:
+        if item in inventory[key]:
+            temp = int(qty)
+            newQty = int(inventory[key][item])
+            if temp <= newQty:
+                newQty -= temp
+                inventory[key][item] = str(newQty)
+                print(item, " now has ", inventory[key][item])
+            else:
+                print("Cannot remove more than what is in the inventory!")
 
 def pull_order(filename):
     # Reserves the order specified by filename
