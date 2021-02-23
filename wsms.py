@@ -7,20 +7,21 @@ pull = {}
 
 def load_stock(filename):
     # Reads filename and adds contents to inventory
+    binCounter = 0
+    bin = {binCounter:None}
     with open (filename, newline = '') as csvfile:
-        orderNum = {}
         orderReader = csv.DictReader(csvfile)
         for row in orderReader:
-            orderNum = {row['item']:row['qty']}
-            inventory.update(orderNum)
+            inventory.update(bin)
+            inventory[binCounter] = {row['item']:row['qty']}
+            binCounter += 1
         print(inventory)
 
 def check_stock(item):
     # Returns the in stock quantity of an item
-    if item in inventory:
-        print("Currently ", item, " has ", inventory[item])
-    else:
-        print("Invalid item number!")
+    for key in inventory:
+        if item in inventory[key]:
+            print("Currently ", item, " has ", inventory[x][item])
 
 def add_stock(item,qty):
     # Increments the stock of the item by qty
@@ -60,12 +61,16 @@ def pull_order(filename):
                 if pullTemp <= invTemp:
                     remove_stock(row['item'],row['qty'])
                     pullNum = {row['item']:row['qty']}
-                    pull.update(pullNum)
                 else:
                     print(row['item']," Cannot reserve more than inventory!")
             else:
                 print(row['item'], " is not in inventory to reserve")
-        print("Pull list", pull)
+    with open('pullorder.csv', 'w', newline = '') as f:
+        fieldnames = ['item', 'quantity']
+        thewriter = csv.DictWriter(f, fieldnames=fieldnames)
+        thewriter.writeheader()
+        for row in pullNum:
+            thewriter.writerow({row['item'] : item, row['quantity'] : qty})
 
 def fill_order(filename):
     # Deletes the specified pull list from the system
@@ -93,7 +98,6 @@ def restock_order(filename):
 
 def print_stock():
     # Prints the stock of each bin
-    binCounter = 0
     for key, value in inventory.items():
-        binCounter += 1
-        print(binCounter, " ", key, ":", value)
+        print(key, " : ", value)
+    pass
