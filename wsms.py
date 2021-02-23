@@ -2,8 +2,10 @@
 # Program 1
 # Name: Thomas Truong
 import csv
+import os
 inventory = {}
 pull = {}
+csvCounter = 1
 
 def load_stock(filename):
     # Reads filename and adds contents to inventory
@@ -49,37 +51,41 @@ def remove_stock(item,qty):
 def pull_order(filename):
     # Reserves the order specified by filename
     # outputs the ordered bin pull list
+    binCounter = 1
     with open (filename, newline = '') as csvfile:
         pullNum = {}
         pullReader = csv.DictReader(csvfile)
         for row in pullReader:
-            if row['item'] in inventory:
-                pullTemp = int(row['qty'])
-                invTemp = int(inventory[row['item']])
-                if pullTemp <= invTemp:
-                    remove_stock(row['item'],row['qty'])
-                    pullNum = {row['item']:row['qty']}
-                else:
-                    print(row['item']," Cannot reserve more than inventory!")
-            else:
-                print(row['item'], " is not in inventory to reserve")
-    with open('pullorder.csv', 'w', newline = '') as f:
-        fieldnames = ['item', 'quantity']
-        thewriter = csv.DictWriter(f, fieldnames=fieldnames)
-        thewriter.writeheader()
-        for row in pullNum:
-            thewriter.writerow({row['item'] : item, row['quantity'] : qty})
+            for key in inventory:
+                if row['item'] in inventory[key]:
+                    pullTemp = int(row['qty'])
+                    invTemp = int(inventory[key][row['item']])
+                    if pullTemp <= invTemp:
+                        remove_stock(row['item'],row['qty'])
+                        bin = {binCounter:None}
+                        pull.update(bin)
+                        pull[binCounter] = {row['item']:row['qty']}
+                        binCounter += 1
+        csv_maker(pull)
+        pull.clear()
+def csv_maker(dict):
+    global csvCounter
+    filename = "pull_" + str(csvCounter) + ".csv"
+    with open(filename, 'w', newline = '') as csvfile:
+        csv_columns = ['bin', 'item', 'qty']
+        pullWriter = csv.DictWriter(csvfile, fieldnames=csv_columns)
+        pullWriter.writeheader()
+        for bin, item in pull.items():
+            for key in item:
+                pullWriter.writerow({'bin': bin, 'item': key, 'qty': item[key]})
+
+    print('\nCSV File: ' + filename)
+    print('Use this for fill_order or restock_order')
+    csvCounter += 1
 
 def fill_order(filename):
     # Deletes the specified pull list from the system
-    with open (filename, newline = '') as csvfile:
-        fillReader = csv.DictReader(csvfile)
-        for row in fillReader:
-            if row['item'] in pull:
-                del pull[row['item']]
-            else:
-                print(row['item'], " is not in pull list to fill")
-        print("Pull list", pull)
+    os.remove(filename)
 
 def restock_order(filename):
     # Reads the given pull list to reverse the order
@@ -87,12 +93,10 @@ def restock_order(filename):
     with open (filename, newline = '') as csvfile:
         restockReader = csv.DictReader(csvfile)
         for row in restockReader:
-            if row['item'] in pull:
-                add_stock(row['item'], row['qty'])
-                del pull[row['item']]
-            else:
-                print(row['item'], " is not in list to restock")
-        print("Pull list", pull)
+            for key in inventory:
+                if row['item'] in inventory[key]:
+                    add_stock(row['item'],row['qty'])
+    fill_order(filename)
 
 def print_stock():
     # Prints the stock of each bin
