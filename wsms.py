@@ -3,10 +3,12 @@
 # Name: Thomas Truong
 import csv
 import os
+import sys
 inventory = {}
 pull = {}
 csvCounter = 1
 binCounter = 1
+inventoryCounter = 1
 
 def load_stock(filename):
     # Reads filename and adds contents to inventory
@@ -69,6 +71,7 @@ def pull_order(filename):
                         binCounter += 1
         csv_maker(pull)
         pull.clear()
+
 def csv_maker(dict):
     global csvCounter
     filename = "pull_" + str(csvCounter) + ".csv"
@@ -79,10 +82,27 @@ def csv_maker(dict):
         for bin, item in pull.items():
             for key in item:
                 pullWriter.writerow({'bin': bin, 'item': key, 'qty': item[key]})
-
     print('\nCSV File: ' + filename)
     print('Use this for fill_order or restock_order')
     csvCounter += 1
+
+def exit_inventory(dict):
+    global inventoryCounter
+    filename = "inventory_" + str(inventoryCounter) + ".csv"
+    with open(filename, 'w', newline = '') as csvfile:
+        inventory_columns = ['item', 'qty']
+        inventoryWriter = csv.DictWriter(csvfile, fieldnames=inventory_columns)
+        inventoryWriter.writeheader()
+        for bin, item in inventory.items():
+            for key in item:
+                inventoryWriter.writerow({'item': key, 'qty': item[key]})
+        print('\Inventory File: ' + filename)
+        print('Use this for the next session when loading csv file.')
+        inventoryCounter += 1
+
+def exit_stock():
+    exit_inventory(inventory)
+    sys.exit()
 
 def fill_order(filename):
     # Deletes the specified pull list from the system
