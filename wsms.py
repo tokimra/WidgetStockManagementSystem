@@ -112,7 +112,7 @@ def csv_maker(dict):
     csvCounter += 1
 
 def exit_inventory(dict):
-    # Exit function used to create a csv file of current invenotry for next session
+    # Exit function used to create a csv file of current inventory for next session
     global inventoryCounter
     filename = "inventory_" + str(inventoryCounter) + ".csv"
     with open(filename, 'w', newline = '') as csvfile:
